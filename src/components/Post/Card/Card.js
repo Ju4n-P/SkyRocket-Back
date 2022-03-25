@@ -1,4 +1,5 @@
 import React from "react";
+import { Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { isEmpty } from "../../Utils";
 
@@ -6,6 +7,8 @@ const Card = ({ post }) => {
   const usersData = useSelector((state) => state.usersReducer);
 
   return (
+    <div class="col">
+
     <div class="card">
       <img
         class="card-img-top"
@@ -15,9 +18,9 @@ const Card = ({ post }) => {
       <div class="card-body">
         <p class="card-text">
           <ul>
-            <li>{post.message}</li>
+            <p>{post.message}</p>
             <li class="mt-10">crée le {post.createdAt}</li>
-            <li class="mt-5">Participants : {post.likers.length}</li>
+            <li class="">Participants : {post.likers.length}</li>
             <li>
               posté par{" "}
               {!isEmpty(usersData[0]) &&
@@ -31,8 +34,10 @@ const Card = ({ post }) => {
           </ul>
         </p>
       </div>
+      </div>
     </div>
-  );
+  )
+  
 };
 
 export default Card;

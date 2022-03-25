@@ -15,11 +15,15 @@ const SignInForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const myStyle = { backgroundImage: "url('./img/passwordpic.jpg')" };
+  const [errors, setErrors] = useState({});
 
   const handleLogin = (e) => {
     e.preventDefault();
-    const emailError = document.querySelector(".email.error");
-    const passwordError = document.querySelector(".password.error");
+    let hasError = false;
+    setErrors({});
+    // const emailError = document.querySelector(".email.error");
+    // const passwordError = document.querySelector(".password.error");
+    
 
     axios({
       method: "post",
@@ -33,9 +37,16 @@ const SignInForm = () => {
       .then((res) => {
         console.log(res);
         if (res.data.errors) {
+          setErrors((prevErrors) => {
+            return {
+              ...prevErrors,
+              email: res.data.errors.email,
+              password: res.data.errors.password,
+            };
+          });
           //remove utiliser 2 state
-          emailError.innerHTML = res.data.errors.email;
-          passwordError.innerHTML = res.data.errors.password;
+          // emailError.innerHTML = res.data.errors.email;
+          // passwordError.innerHTML = res.data.errors.password;
           return;
         }
         setIsLogged(true);

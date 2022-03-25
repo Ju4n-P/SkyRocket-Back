@@ -9,50 +9,59 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [controlPassword, setControlPassword] = useState("");
   const myStyle = { backgroundImage: "url('./img/passwordpic.jpg')" };
+  const [errors, setErrors] = useState({});
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const terms = document.getElementById("terms");
-    const pseudoError = document.querySelector(".pseudo.error");
-    const emailError = document.querySelector(".email.error");
-    const passwordError = document.querySelector(".password.error");
-    const passwordConfirmError = document.querySelector(
-      ".password-confirm.error"
-    );
-    const termsError = document.querySelector(".terms.error");
+    let hasError = false;
+    setErrors({});
 
-    passwordConfirmError.innerHTML = "";
-    termsError.innerHTML = "";
-
-    if (password !== controlPassword || !terms.checked) {
-      if (password !== controlPassword)
-        passwordConfirmError.innerHTML =
-          "Les mots de passe ne correspondent pas";
-
-      if (!terms.checked)
-        termsError.innerHTML = "Veuillez valider les conditions générales";
-    } else {
-      await axios({
-        method: "post",
-        url: `${process.env.REACT_APP_API_URL}api/user/register`,
-        data: {
-          pseudo,
-          email,
-          password,
-        },
-      })
-        .then((res) => {
-          console.log(res);
-          if (res.data.errors) {
-            pseudoError.innerHTML = res.data.errors.pseudo;
-            emailError.innerHTML = res.data.errors.email;
-            passwordError.innerHTML = res.data.errors.password;
-          } else {
-            setFormSubmit(true);
-          }
-        })
-        .catch((err) => console.log(err));
+    if (password !== controlPassword) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        passwordConfirm: "les mots de passe ne correspondent pas",
+      }));
+      hasError = true;
     }
+
+    if (!e.target.terms.checked) {
+      setErrors((prevErrors) => {
+        return {
+          ...prevErrors,
+          terms: "veuillez valider les conditions génrales",
+        };
+      });
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
+    await axios({
+      method: "post",
+      url: `${process.env.REACT_APP_API_URL}api/user/register`,
+      data: {
+        pseudo,
+        email,
+        password,
+      },
+    })
+      .then((res) => {
+        console.log(res);
+        if (res.data.errors) {
+          setErrors((prevErrors) => {
+            return {
+              ...prevErrors,
+              pseudo: res.data.errors.pseudo,
+              email: res.data.errors.email,
+              password: res.data.errors.password,
+            };
+          });
+        } else {
+          setFormSubmit(true);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -85,7 +94,7 @@ const SignUpForm = () => {
                       onChange={(e) => setPseudo(e.target.value)}
                       value={pseudo}
                     />
-                    	  <div className="pseudo error"></div>
+                    <div className="pseudo error"></div>
 
                     <label class="form-control-placeholder" for="text">
                       Pseudo
@@ -122,7 +131,6 @@ const SignUpForm = () => {
                     ></span>
                   </div>
 
-
                   <div class="form-group">
                     <input
                       id="password-conf"
@@ -150,15 +158,19 @@ const SignUpForm = () => {
                   </div>
                   <div class="form-group d-md-flex">
                     <div class="w-50 text-left">
-                      <label class="checkbox-wrap checkbox-primary mb-0" For="terms">
-                      <div className="terms error"></div>
+                      <label
+                        class="checkbox-wrap checkbox-primary mb-0"
+                        For="terms"
+                      >
+                        <div className="terms error"></div>
                         Réglement ok?
-                        <input type="checkbox" id="terms" />
+                        <input type="checkbox" id="terms" name="terms" />
                         <span class="checkmark"></span>
                       </label>
                     </div>
                   </div>
                 </form>
+                <p>{JSON.stringify(errors, undefined, 2)}</p>
                 <p class="text-center">
                   Déjà membre?{" "}
                   <a data-toggle="tab" href="#signin">
